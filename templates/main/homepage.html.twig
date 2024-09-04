@@ -12,11 +12,16 @@
         {% endblock %}
     </head>
     <body>
+        {% if app.user %}
+            <div class="mb-3">
+                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% endif %}
         <h1>Welcome to New Wine Rest API!</h1>
         
         <div>
         	<a href="https://127.0.0.1:8000/login">
-            	<button>Go to Login</button>
+                <button {% if app.user %}disabled{% endif %}>Sign In</button>
         	</a>
         	<a href="https://127.0.0.1:8000/register">
             	<button>Register</button>
