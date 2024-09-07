@@ -6,13 +6,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Swagger\Annotations as SWG;
 use App\Entity\Sensor;
 use App\Entity\Wine;
 use App\Entity\Measurement;
-
 
 class ApiController extends AbstractController
 {
@@ -49,6 +49,7 @@ class ApiController extends AbstractController
      *     )
      * )
      */
+    #[Route('api/login')]
     public function login(Request $request, AuthenticationUtils $authenticationUtils): JsonResponse
     {
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -85,6 +86,7 @@ class ApiController extends AbstractController
      *     )
      * )
      */
+    #[Route('api/sensor')]
     public function registerSensor(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -115,6 +117,8 @@ class ApiController extends AbstractController
      *     )
      * )
      */
+    #[Route('api/sensors')]
+
     public function getSensors(EntityManagerInterface $em): JsonResponse
     {
         $sensors = $em->getRepository(Sensor::class)->findBy([], ['name' => 'ASC']);
@@ -163,6 +167,8 @@ class ApiController extends AbstractController
      *     )
      * )
      */
+    #[Route('api/wines/measurements')]
+
     public function getWinesWithMeasurements(EntityManagerInterface $em): JsonResponse
     {
         $wines = $em->getRepository(Wine::class)->findAll();
@@ -222,6 +228,7 @@ class ApiController extends AbstractController
      *     )
      * )
      */
+    #[Route('api/measurement')]
     public function registerMeasurement(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
