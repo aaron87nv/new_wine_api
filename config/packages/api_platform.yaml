@@ -1,6 +1,11 @@
 api_platform:
-    title: Hello API Platform
-    version: 1.0.0
+    enable_swagger: true
+    enable_swagger_ui: true
+    enable_re_doc: true
+    enable_entrypoint: true
+    title: 'Wine API'
+    description: 'API for managing wine measurements'
+    version: '1.0.0'
     formats:
         jsonld: ['application/ld+json']
     docs_formats:

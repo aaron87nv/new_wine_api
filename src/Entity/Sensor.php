@@ -6,6 +6,13 @@ use App\Repository\SensorRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SensorRepository::class)]
+/**
+ * @ApiResource(
+ *     collectionOperations={"get", "post"},
+ *     itemOperations={"get", "put", "delete"}
+ * )
+ * @ORM\Entity
+ */
 class Sensor
 {
     #[ORM\Id]

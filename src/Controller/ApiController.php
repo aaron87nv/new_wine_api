@@ -2,20 +2,67 @@
 // src/Controller/ApiController.php
 namespace App\Controller;
 
-use App\Entity\Measurement;
-use App\Entity\Sensor;
-use App\Entity\Wine;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Swagger\Annotations as SWG;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use App\Entity\Sensor;
+use App\Entity\Wine;
+use App\Entity\Measurement;
+
 
 class ApiController extends AbstractController
 {
     /**
-     * @Route("/api/doc", name="api_register_sensor", methods={"POST"})
+     * @Route("/api/login", name="api_login", methods={"POST"})
+     * @SWG\Post(
+     *     summary="Login a user",
+     *     description="Authenticates a user with username and password",
+     *     @SWG\Response(
+     *         response=200,
+     *         description="Successful login",
+     *         @SWG\Schema(
+     *             type="object",
+     *             @SWG\Property(property="username", type="string")
+     *         )
+     *     ),
+     *     @SWG\Response(
+     *         response=401,
+     *         description="Invalid credentials",
+     *         @SWG\Schema(
+     *             type="object",
+     *             @SWG\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @SWG\Parameter(
+     *         name="body",
+     *         in="body",
+     *         required=true,
+     *         @SWG\Schema(
+     *             type="object",
+     *             @SWG\Property(property="username", type="string"),
+     *             @SWG\Property(property="password", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function login(Request $request, AuthenticationUtils $authenticationUtils): JsonResponse
+    {
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        if ($error) {
+            return new JsonResponse(['error' => $error->getMessageKey()], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        return new JsonResponse(['username' => $lastUsername]);
+    }
+
+    /**
+     * @Route("/api/sensor", name="api_register_sensor", methods={"POST"})
      * @SWG\Post(
      *     summary="Register a new sensor",
      *     description="Creates a new sensor",
@@ -38,7 +85,6 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    //#[Route(path: '/api/doc', name: 'app_sensor')]
     public function registerSensor(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
