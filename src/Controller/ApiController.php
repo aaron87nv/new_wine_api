@@ -86,12 +86,15 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    #[Route('api/sensor')]
+    #[Route('api/sensor', methods: ['POST'])]
     public function registerSensor(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $name = $request->request->get('name');
+        if (!$name) {
+            return new JsonResponse(['error' => 'Name field is required.'], JsonResponse::HTTP_BAD_REQUEST);
+        }
         $sensor = new Sensor();
-        $sensor->setName($data['name']);
+        $sensor->setName($name);
         $em->persist($sensor);
         $em->flush();
 
@@ -118,7 +121,6 @@ class ApiController extends AbstractController
      * )
      */
     #[Route('api/sensors')]
-
     public function getSensors(EntityManagerInterface $em): JsonResponse
     {
         $sensors = $em->getRepository(Sensor::class)->findBy([], ['name' => 'ASC']);
@@ -228,7 +230,7 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    #[Route('api/measurement')]
+    #[Route('api/measurement', 'test')]
     public function registerMeasurement(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

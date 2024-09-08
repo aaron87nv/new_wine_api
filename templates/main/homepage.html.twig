@@ -20,12 +20,28 @@
         <h1>Welcome to New Wine Rest API!</h1>
         
         <div>
-        	<a href="https://127.0.0.1:8000/login">
+        	<a href="login">
                 <button {% if app.user %}disabled{% endif %}>Sign In</button>
         	</a>
-        	<a href="https://127.0.0.1:8000/register">
+        	<a href="register">
             	<button>Register</button>
         	</a>
     	</div>
+        <div>
+            {% if app.user %}
+                <div class="mb-3">
+                    <form action="api/sensor" method="post">
+                        <label for="sensor_name">Sensor Name:</label>
+                        <input type="text" id="sensor_name" name="name" required>
+                        <button type="submit">New Sensor</button>
+                    </form>
+                </div>
+                </div>
+                <a href="api/sensors">
+                    <button>Show Sensors</button>
+                </a>
+            </div>
+            {% endif %}
+        </div>
 
 </html>
