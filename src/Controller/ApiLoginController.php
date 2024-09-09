@@ -3,11 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use OpenApi\Annotations as OA;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class ApiLoginController extends AbstractController
 {
@@ -18,11 +19,14 @@ class ApiLoginController extends AbstractController
      *     path="/api/login",
      *     summary="User Login",
      *     description="Authenticates a user and returns a token if credentials are valid.",
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             type="object",
      *             required={"username", "password"},
+     *
      *             @OA\Property(
      *                 property="username",
      *                 type="string",
@@ -35,11 +39,14 @@ class ApiLoginController extends AbstractController
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Successful authentication.",
+     *
      *         @OA\JsonContent(
      *             type="object",
+     *
      *             @OA\Property(
      *                 property="user",
      *                 type="string",
@@ -52,11 +59,14 @@ class ApiLoginController extends AbstractController
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Missing credentials or invalid authentication.",
+     *
      *         @OA\JsonContent(
      *             type="object",
+     *
      *             @OA\Property(
      *                 property="message",
      *                 type="string",
@@ -68,7 +78,7 @@ class ApiLoginController extends AbstractController
      * )
      */
     #[Route('/api/login', name: 'api_login', methods: 'POST')]
-    public function index(#[CurrentUser] ?User $user): Response
+    public function index(#[CurrentUser] ?User $user, JWTTokenManagerInterface $JWTManager): Response
     {
         if (null === $user) {
             return $this->json([
@@ -76,10 +86,11 @@ class ApiLoginController extends AbstractController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $token = 'your_token_generation_logic_here'; // Replace this with your actual token generation logic
+        // Generate a JWT token for the authenticated user
+        $token = $JWTManager->create($user);
 
         return $this->json([
-            'user'  => $user->getUserIdentifier(),
+            'user' => $user->getUserIdentifier(),
             'token' => $token,
         ]);
     }
