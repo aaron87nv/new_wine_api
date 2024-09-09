@@ -1,9 +1,79 @@
 # config/packages/nelmio_api_doc.yaml
 nelmio_api_doc:
-    use_validation_groups: true
     documentation:
-        path_patterns: # an array of regexps (document only routes under /api, except /api/doc)
-            - ^/api(?!/doc$)
-        host_patterns: # document only routes with a host of the form api.*
-            - ^api\.
-
+        info:
+            title: Wine API
+            description: API for managing wine measurements
+            version: 1.0.0
+        paths:
+            /api/login:
+                post:
+                    summary: "API Login"
+                    description: "Login to obtain an authentication token."
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        username:
+                                            type: string
+                                        password:
+                                            type: string
+                    responses:
+                        '200':
+                            description: Successful operation
+                            content:
+                                application/xml:
+                                    schema:
+                                        type: string
+                                application/json:
+                                    schema:
+                                        type: string
+                        '400':
+                            description: Invalid username/password supplied
+                    tags:
+                        - User
+            /register:
+                get:
+                    description: Get user information for Register
+                    tags:
+                        - User
+                post:
+                    description: Creates a new user
+                    tags:
+                        - User
+            /logout:
+                post:
+                    description: User Logout
+                    tags:
+                        - User
+            /api/sensor:
+                post:
+                    summary: Creates a new sensor
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        name:
+                                            type: string
+                                            description: New sensor name
+                    responses:
+                        '201':
+                            description: Sensor created successfully
+                        '400':
+                            description: Bad request
+                    tags:
+                        - Wine Management
+        tags:
+            - name: User
+            - name: Wine Management
+    areas:
+        path_patterns:
+            - ^/api(?!/doc$) # Matches any path starting with /api except /api/doc
+            - ^/login
+            - ^/register

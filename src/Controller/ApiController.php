@@ -9,59 +9,14 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Doctrine\ORM\EntityManagerInterface;
-use Swagger\Annotations as SWG;
 use App\Entity\Sensor;
 use App\Entity\Wine;
 use App\Entity\Measurement;
+use Swagger\Annotations as SWG;
+
 
 class ApiController extends AbstractController
 {
-    /**
-     * @Route("/api/login", name="api_login", methods={"POST"})
-     * @SWG\Post(
-     *     summary="Login a user",
-     *     description="Authenticates a user with username and password",
-     *     @SWG\Response(
-     *         response=200,
-     *         description="Successful login",
-     *         @SWG\Schema(
-     *             type="object",
-     *             @SWG\Property(property="username", type="string")
-     *         )
-     *     ),
-     *     @SWG\Response(
-     *         response=401,
-     *         description="Invalid credentials",
-     *         @SWG\Schema(
-     *             type="object",
-     *             @SWG\Property(property="error", type="string")
-     *         )
-     *     ),
-     *     @SWG\Parameter(
-     *         name="body",
-     *         in="body",
-     *         required=true,
-     *         @SWG\Schema(
-     *             type="object",
-     *             @SWG\Property(property="username", type="string"),
-     *             @SWG\Property(property="password", type="string")
-     *         )
-     *     )
-     * )
-     */
-    #[Route('api/login')]
-    public function login(Request $request, AuthenticationUtils $authenticationUtils): JsonResponse
-    {
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        if ($error) {
-            return new JsonResponse(['error' => $error->getMessageKey()], JsonResponse::HTTP_UNAUTHORIZED);
-        }
-
-        return new JsonResponse(['username' => $lastUsername]);
-    }
-
     /**
      * @Route("/api/sensor", name="api_register_sensor", methods={"POST"})
      * @SWG\Post(
@@ -89,10 +44,16 @@ class ApiController extends AbstractController
     #[Route('api/sensor', methods: ['POST'])]
     public function registerSensor(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        $name = $request->request->get('name');
+        // Decode JSON data from the request body
+        $data = json_decode($request->getContent(), true);
+
+        // Check if 'name' field exists in the decoded JSON data
+        $name = $data['name'] ?? null;
         if (!$name) {
             return new JsonResponse(['error' => 'Name field is required.'], JsonResponse::HTTP_BAD_REQUEST);
         }
+
+        // Create and persist the new Sensor entity
         $sensor = new Sensor();
         $sensor->setName($name);
         $em->persist($sensor);
@@ -120,18 +81,16 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    #[Route('api/sensors')]
+    #[Route('api/sensors', methods: 'GET')]
     public function getSensors(EntityManagerInterface $em): JsonResponse
     {
         $sensors = $em->getRepository(Sensor::class)->findBy([], ['name' => 'ASC']);
         $data = [];
 
-        foreach ($sensors as $sensor) {
-            $data[] = [
-                'id' => $sensor->getId(),
-                'name' => $sensor->getName(),
-            ];
-        }
+        $data = array_map(fn($sensor) => [
+            'id' => $sensor->getId(),
+            'name' => $sensor->getName(),
+        ], $sensors);
 
         return new JsonResponse($data);
     }
@@ -169,7 +128,7 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    #[Route('api/wines/measurements')]
+    #[Route('api/wines/measurements', methods: 'GET')]
 
     public function getWinesWithMeasurements(EntityManagerInterface $em): JsonResponse
     {
@@ -230,12 +189,12 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    #[Route('api/measurement', 'test')]
+    #[Route('api/measurement', methods: 'POST')]
     public function registerMeasurement(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $measurement = new Measurement();
-        $measurement->setYear($data['year']);
+        $measurement->setYear($request->request->get('year'));
         $measurement->setSensor($em->getRepository(Sensor::class)->find($data['sensor_id']));
         $measurement->setWine($em->getRepository(Wine::class)->find($data['wine_id']));
         $measurement->setColor($data['color']);

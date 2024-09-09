@@ -1,47 +1,144 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Wine REST API Example Page{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><text y='1.2em' font-size='96'>⚫️</text><text y='1.3em' x='0.2em' font-size='76' fill='#fff'>sf</text></svg>">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4a4a4a;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .mb-3 {
+            margin-bottom: 20px;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+    {% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
+</head>
+<body>
+<div class="container">
+    {% if app.user %}
+        <div class="mb-3">
+            Logged in as {{ app.user.userIdentifier }} | <a href="{{ path('app_logout') }}">Logout</a>
+        </div>
+    {% else %}
+        <div class="button-group">
+            <a href="login"><button>Sign In</button></a>
+            <a href="register"><button>Register</button></a>
+        </div>
+    {% endif %}
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {% if app.user %}
-            <div class="mb-3">
-                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
-            </div>
-        {% endif %}
-        <h1>Welcome to New Wine Rest API!</h1>
-        
-        <div>
-        	<a href="login">
-                <button {% if app.user %}disabled{% endif %}>Sign In</button>
-        	</a>
-        	<a href="register">
-            	<button>Register</button>
-        	</a>
-    	</div>
-        <div>
-            {% if app.user %}
-                <div class="mb-3">
-                    <form action="api/sensor" method="post">
-                        <label for="sensor_name">Sensor Name:</label>
-                        <input type="text" id="sensor_name" name="name" required>
-                        <button type="submit">New Sensor</button>
-                    </form>
-                </div>
-                </div>
-                <a href="api/sensors">
-                    <button>Show Sensors</button>
-                </a>
-            </div>
-            {% endif %}
+    <h1>Welcome to the New Wine REST API Example Page!</h1>
+
+    {% if app.user %}
+        <form id="sensorForm">
+            <label for="sensor_name">Sensor Name:</label>
+            <input type="text" id="sensor_name" name="name" required>
+            <button type="submit">New Sensor</button>
+        </form>
+
+        <script>
+            document.getElementById('sensorForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const name = document.getElementById('sensor_name').value;
+
+                try {
+                    const response = await fetch('api/sensor', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name }),
+                    });
+
+                    const result = await response.json();
+                    alert(response.ok ? 'Sensor created successfully!' : `Error: ${result.error || 'An error occurred'}`);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An unexpected error occurred.');
+                }
+            });
+        </script>
+
+        <div class="button-group">
+            <a href="api/sensors"><button>Show Sensors</button></a>
+            <a href="api/wines/measurements"><button>Show Wines</button></a>
         </div>
 
+        <form action="api/measurement" method="post">
+            <label for="measurement_year">Year:</label>
+            <input type="text" id="measurement_year" name="year" required>
+
+            <label for="measurement_color">Color:</label>
+            <input type="text" id="measurement_color" name="color" required>
+
+            <label for="measurement_temperature">Temperature:</label>
+            <input type="text" id="measurement_temperature" name="temperature" required>
+
+            <label for="measurement_alcohol">Alcohol Content:</label>
+            <input type="text" id="measurement_alcohol" name="alcoholContent" required>
+
+            <label for="measurement_ph">PH:</label>
+            <input type="text" id="measurement_ph" name="ph" required>
+
+            <button type="submit">New Measurement</button>
+        </form>
+    {% endif %}
+</div>
+</body>
 </html>
