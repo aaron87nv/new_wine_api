@@ -9,16 +9,19 @@ The Wine API provides an interface for managing sensors, wines, and measurements
 
 ## Installation
 Install Symfony
+
 Install PostgreSQL
+
 Install dependencies:
+
     composer install
     composer require nelmio/api-doc-bundle
     composer require twig asset
 
 
 ## Usage
-cd new_wine_api/
-symfony server:start
+    cd new_wine_api/
+    symfony server:start
 
 ## API Documentation
 API documentation is automatically generated and available at:

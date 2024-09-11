@@ -86,8 +86,8 @@ nelmio_api_doc:
             /api/wines/measurements:
                 get:
                     tags:
-                        - Wines
-                    summary: Get list of wines with their measurements
+                        - Wine Management
+                    summary: Get a list of wines with their measurements
                     description: "Returns a list of wines with their associated measurements"
                     responses:
                         200:
