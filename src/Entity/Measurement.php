@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Entity\Sensor;
+use App\Entity\Wine;
 use App\Repository\MeasurementRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -33,6 +35,12 @@ class Measurement
 
     #[ORM\Column(nullable: true)]
     private ?float $ph = null;
+
+    #[ORM\ManyToOne(targetEntity: Sensor::class)]
+    private ?Sensor $sensor = null;
+
+    #[ORM\ManyToOne(targetEntity: Wine::class, cascade: ['persist', 'remove'])]
+    private ?Wine $wine = null;
 
     public function getId(): ?int
     {
@@ -122,4 +130,29 @@ class Measurement
 
         return $this;
     }
+
+    public function setSensor(Sensor $sensor): static
+    {
+        $this->sensor = $sensor;
+
+        return $this;
+    }
+
+    public function setWine(Wine $wine): static
+    {
+        $this->wine = $wine;
+
+        return $this;
+    }
+
+    public function getWine(): ?Wine
+    {
+        return $this->wine;
+    }
+
+    public function getSensor(): ?Sensor
+    {
+        return $this->sensor;
+    }
+
 }

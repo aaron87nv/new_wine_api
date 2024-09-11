@@ -8,8 +8,8 @@ nelmio_api_doc:
         paths:
             /api/login:
                 post:
-                    summary: "API Login"
-                    description: "Login to obtain an authentication token."
+                    summary: API Login
+                    description: Login to obtain an authentication token.
                     requestBody:
                         required: true
                         content:
@@ -36,10 +36,6 @@ nelmio_api_doc:
                     tags:
                         - User
             /register:
-                get:
-                    description: Get user information for Register
-                    tags:
-                        - User
                 post:
                     description: Creates a new user
                     tags:
@@ -51,7 +47,9 @@ nelmio_api_doc:
                         - User
             /api/sensor:
                 post:
-                    summary: Creates a new sensor
+                    tags:
+                        - Wine Management
+                    summary: Register a new sensor
                     requestBody:
                         required: true
                         content:
@@ -67,13 +65,60 @@ nelmio_api_doc:
                             description: Sensor created successfully
                         '400':
                             description: Bad request
+            /api/sensors:
+                get:
                     tags:
                         - Wine Management
+                    summary: Get sorted sensors
+                    responses:
+                        '200':
+                            description: Successful response
+            /api/measurement:
+                post:
+                    tags:
+                        - Wine Management
+                    summary: Register a new measurement
+                    requestBody:
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: '#/components/schemas/Measurement'
+            /api/wines/measurements:
+                get:
+                    tags:
+                        - Wines
+                    summary: Get list of wines with their measurements
+                    description: "Returns a list of wines with their associated measurements"
+                    responses:
+                        200:
+                            description: Successful response
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Measurement'
+                        400:
+                            description: "Bad request"
+                        500:
+                            description: "Server error"
+
         tags:
             - name: User
             - name: Wine Management
+        components:
+            schemas:
+                Measurement:
+                    type: object
+                    properties:
+                        year: { type: integer, example: 2024}
+                        sensor_id: { type: integer, example: 1 }
+                        wine_id: { type: integer, example: 1 }
+                        wine_name: {type: string, example: Crianza }
+                        color: { type: string, example: red }
+                        temperature: { type: number, example: 18 }
+                        alcoholContent: { type: number, example: 14 }
+                        ph: { type: number, example: 5 }
+
+
     areas:
         path_patterns:
             - ^/api(?!/doc$) # Matches any path starting with /api except /api/doc
-            - ^/login
-            - ^/register

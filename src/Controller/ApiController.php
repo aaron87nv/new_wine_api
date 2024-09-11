@@ -1,47 +1,54 @@
 <?php
+
 // src/Controller/ApiController.php
+
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\Measurement;
 use App\Entity\Sensor;
 use App\Entity\Wine;
-use App\Entity\Measurement;
+use Doctrine\ORM\EntityManagerInterface;
 use Swagger\Annotations as SWG;
-
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController extends AbstractController
 {
     /**
      * @Route("/api/sensor", name="api_register_sensor", methods={"POST"})
+     *
      * @SWG\Post(
      *     summary="Register a new sensor",
      *     description="Creates a new sensor",
+     *
      *     @SWG\Response(
      *         response=201,
      *         description="Sensor created",
+     *
      *         @SWG\Schema(
      *             type="object",
+     *
      *             @SWG\Property(property="status", type="string")
      *         )
      *     ),
+     *
      *     @SWG\Parameter(
      *         name="body",
      *         in="body",
      *         required=true,
+     *
      *         @SWG\Schema(
      *             type="object",
+     *
      *             @SWG\Property(property="name", type="string")
      *         )
      *     )
      * )
      */
-    #[Route('api/sensor', methods: ['POST'])]
+    #[Route('/api/sensor', methods: ['POST'])]
     public function registerSensor(Request $request, EntityManagerInterface $em): JsonResponse
     {
         // Decode JSON data from the request body
@@ -64,16 +71,21 @@ class ApiController extends AbstractController
 
     /**
      * @Route("/api/sensors", name="api_get_sensors", methods={"GET"})
+     *
      * @SWG\Get(
      *     summary="Get sorted sensors",
      *     description="Returns a list of sensors sorted by name",
+     *
      *     @SWG\Response(
      *         response=200,
      *         description="Successful response",
+     *
      *         @SWG\Schema(
      *             type="array",
+     *
      *             @SWG\Items(
      *                 type="object",
+     *
      *                 @SWG\Property(property="id", type="integer"),
      *                 @SWG\Property(property="name", type="string")
      *             )
@@ -81,13 +93,13 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    #[Route('api/sensors', methods: 'GET')]
+    #[Route('/api/sensors', methods: 'GET')]
     public function getSensors(EntityManagerInterface $em): JsonResponse
     {
         $sensors = $em->getRepository(Sensor::class)->findBy([], ['name' => 'ASC']);
         $data = [];
 
-        $data = array_map(fn($sensor) => [
+        $data = array_map(fn ($sensor) => [
             'id' => $sensor->getId(),
             'name' => $sensor->getName(),
         ], $sensors);
@@ -97,24 +109,31 @@ class ApiController extends AbstractController
 
     /**
      * @Route("/api/wines/measurements", name="api_get_wines_with_measurements", methods={"GET"})
+     *
      * @SWG\Get(
      *     summary="Get wines with measurements",
      *     description="Returns a list of wines with their measurements",
+     *
      *     @SWG\Response(
      *         response=200,
      *         description="Successful response",
+     *
      *         @SWG\Schema(
      *             type="array",
+     *
      *             @SWG\Items(
      *                 type="object",
+     *
      *                 @SWG\Property(property="id", type="integer"),
      *                 @SWG\Property(property="name", type="string"),
      *                 @SWG\Property(property="year", type="integer"),
      *                 @SWG\Property(
      *                     property="measurements",
      *                     type="array",
+     *
      *                     @SWG\Items(
      *                         type="object",
+     *
      *                         @SWG\Property(property="year", type="integer"),
      *                         @SWG\Property(property="sensor", type="string"),
      *                         @SWG\Property(property="color", type="string"),
@@ -128,32 +147,30 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    #[Route('api/wines/measurements', methods: 'GET')]
-
+    #[Route('/api/wines/measurements', methods: ['GET'])]
     public function getWinesWithMeasurements(EntityManagerInterface $em): JsonResponse
     {
-        $wines = $em->getRepository(Wine::class)->findAll();
+        $measurements = $em->getRepository(Measurement::class)->findAll();
         $data = [];
 
-        foreach ($wines as $wine) {
-            $measurements = [];
-            foreach ($wine->getMeasurements() as $measurement) {
-                $measurements[] = [
-                    'year' => $measurement->getYear(),
-                    'sensor' => $measurement->getSensor()->getName(),
-                    'color' => $measurement->getColor(),
-                    'temperature' => $measurement->getTemperature(),
-                    'alcoholContent' => $measurement->getAlcoholContent(),
-                    'ph' => $measurement->getPh(),
+        foreach ($measurements as $measurement) {
+            $wine = $measurement->getWine();
+
+            if ($wine) {
+                $data[] = [
+                    'id' => $wine->getId(),
+                    'name' => $wine->getName(),
+                    'year' => $wine->getYear(),
+                    'measurements' => [
+                        'year' => $measurement->getYear(),
+                        'sensor' => $measurement->getSensor() ? $measurement->getSensor()->getName() : null,
+                        'color' => $measurement->getColor(),
+                        'temperature' => $measurement->getTemperature(),
+                        'alcoholContent' => $measurement->getAlcoholContent(),
+                        'ph' => $measurement->getPh(),
+                    ],
                 ];
             }
-
-            $data[] = [
-                'id' => $wine->getId(),
-                'name' => $wine->getName(),
-                'year' => $wine->getYear(),
-                'measurements' => $measurements,
-            ];
         }
 
         return new JsonResponse($data);
@@ -161,23 +178,30 @@ class ApiController extends AbstractController
 
     /**
      * @Route("/api/measurement", name="api_register_measurement", methods={"POST"})
+     *
      * @SWG\Post(
      *     summary="Register a new measurement",
      *     description="Creates a new measurement for a wine",
+     *
      *     @SWG\Response(
      *         response=201,
      *         description="Measurement recorded",
+     *
      *         @SWG\Schema(
      *             type="object",
+     *
      *             @SWG\Property(property="status", type="string")
      *         )
      *     ),
+     *
      *     @SWG\Parameter(
      *         name="body",
      *         in="body",
      *         required=true,
+     *
      *         @SWG\Schema(
      *             type="object",
+     *
      *             @SWG\Property(property="year", type="integer"),
      *             @SWG\Property(property="sensor_id", type="integer"),
      *             @SWG\Property(property="wine_id", type="integer"),
@@ -189,18 +213,35 @@ class ApiController extends AbstractController
      *     )
      * )
      */
-    #[Route('api/measurement', methods: 'POST')]
+    #[Route('/api/measurement', methods: 'POST')]
     public function registerMeasurement(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $measurement = new Measurement();
-        $measurement->setYear($request->request->get('year'));
-        $measurement->setSensor($em->getRepository(Sensor::class)->find($data['sensor_id']));
-        $measurement->setWine($em->getRepository(Wine::class)->find($data['wine_id']));
+        $measurement->setYear($data['year']);
+
+        // Find the sensor
+        $sensor = $em->getRepository(Sensor::class)->find($data['sensor_id']);
+        if (!$sensor) {
+            return new JsonResponse(['error' => 'Sensor not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $measurement->setSensor($sensor);
+
+        // Create a new Wine object and set its properties
+        $wine = new Wine();
+        $wine->setName($data['wine_name']); // Assuming wine_name is sent in the request
+        $wine->setYear($data['year']); // Assuming wine_year is sent in the request
+
+        // Set the Wine object to the Measurement
+        $measurement->setWine($wine);
+
+        // Set other properties of Measurement
         $measurement->setColor($data['color']);
         $measurement->setTemperature($data['temperature']);
         $measurement->setAlcoholContent($data['alcoholContent']);
         $measurement->setPh($data['ph']);
+
+        // Persist the Measurement which also persists the new Wine due to the cascade
         $em->persist($measurement);
         $em->flush();
 
@@ -209,19 +250,24 @@ class ApiController extends AbstractController
 
     /**
      * @Route("/api", name="app_api", methods={"GET"})
+     *
      * @SWG\Get(
      *     summary="Index",
      *     description="API Index",
+     *
      *     @SWG\Response(
      *         response=200,
      *         description="API Index",
+     *
      *         @SWG\Schema(
      *             type="object",
+     *
      *             @SWG\Property(property="controller_name", type="string")
      *         )
      *     )
      * )
      */
+    #[Route('/api', methods: 'GET')]
     public function index(): Response
     {
         return $this->render('api/index.html.twig', [
