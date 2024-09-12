@@ -6,6 +6,14 @@ nelmio_api_doc:
             description: API for managing wine measurements
             version: 1.0.0
         paths:
+            /api:
+                get:
+                    tags:
+                        - API Check
+                    summary: Check API
+                    responses:
+                        '200':
+                            description: Successful response
             /api/login:
                 post:
                     summary: API Login
@@ -65,6 +73,8 @@ nelmio_api_doc:
                             description: Sensor created successfully
                         '400':
                             description: Bad request
+                        '401':
+                            description: Unauthorized
             /api/sensors:
                 get:
                     tags:
@@ -73,6 +83,9 @@ nelmio_api_doc:
                     responses:
                         '200':
                             description: Successful response
+                        '401':
+                            description: Unauthorized
+
             /api/measurement:
                 post:
                     tags:
@@ -83,6 +96,13 @@ nelmio_api_doc:
                             application/json:
                                 schema:
                                     $ref: '#/components/schemas/Measurement'
+                    responses:
+                        '201':
+                            description: Measurement created successfully
+                        '400':
+                            description: Bad request
+                        '401':
+                            description: Unauthorized
             /api/wines/measurements:
                 get:
                     tags:
@@ -90,15 +110,15 @@ nelmio_api_doc:
                     summary: Get a list of wines with their measurements
                     description: "Returns a list of wines with their associated measurements"
                     responses:
-                        200:
+                        '200':
                             description: Successful response
                             content:
                                 application/json:
                                     schema:
                                         $ref: '#/components/schemas/Measurement'
-                        400:
+                        '400':
                             description: "Bad request"
-                        500:
+                        '500':
                             description: "Server error"
 
         tags:
@@ -109,14 +129,14 @@ nelmio_api_doc:
                 Measurement:
                     type: object
                     properties:
-                        year: { type: integer, example: 2024}
-                        sensor_id: { type: integer, example: 1 }
-                        wine_id: { type: integer, example: 1 }
-                        wine_name: {type: string, example: Crianza }
-                        color: { type: string, example: red }
-                        temperature: { type: number, example: 18 }
-                        alcoholContent: { type: number, example: 14 }
-                        ph: { type: number, example: 5 }
+                        year: { type: integer}
+                        sensor_id: { type: integer}
+                        wine_id: { type: integer}
+                        wine_name: {type: string}
+                        color: { type: string}
+                        temperature: { type: number}
+                        alcoholContent: { type: number}
+                        ph: { type: number}
 
 
     areas:

@@ -10,7 +10,11 @@ The Wine API provides an interface for managing sensors, wines, and measurements
 ## Installation
 Install Symfony
 
+https://symfony.com/download
+
 Install PostgreSQL
+
+https://www.postgresql.org/download/
 
 Install dependencies:
 
@@ -24,7 +28,7 @@ Install dependencies:
     symfony server:start
 
 ## API Documentation
-API documentation is automatically generated and available at:
+API documentation is and available at:
 https://localhost:8000/api/doc
 
 

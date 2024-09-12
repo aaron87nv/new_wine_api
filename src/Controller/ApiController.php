@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ApiController extends AbstractController
 {
@@ -49,6 +50,7 @@ class ApiController extends AbstractController
      * )
      */
     #[Route('/api/sensor', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
     public function registerSensor(Request $request, EntityManagerInterface $em): JsonResponse
     {
         // Decode JSON data from the request body
@@ -57,7 +59,7 @@ class ApiController extends AbstractController
         // Check if 'name' field exists in the decoded JSON data
         $name = $data['name'] ?? null;
         if (!$name) {
-            return new JsonResponse(['error' => 'Name field is required.'], JsonResponse::HTTP_BAD_REQUEST);
+            return new JsonResponse(['error' => 'Name field is required.'], Response::HTTP_BAD_REQUEST);
         }
 
         // Create and persist the new Sensor entity
@@ -66,7 +68,7 @@ class ApiController extends AbstractController
         $em->persist($sensor);
         $em->flush();
 
-        return new JsonResponse(['status' => 'Sensor created!'], JsonResponse::HTTP_CREATED);
+        return new JsonResponse(['status' => 'Sensor created!'], Response::HTTP_CREATED);
     }
 
     /**
@@ -148,6 +150,7 @@ class ApiController extends AbstractController
      * )
      */
     #[Route('/api/wines/measurements', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function getWinesWithMeasurements(EntityManagerInterface $em): JsonResponse
     {
         $measurements = $em->getRepository(Measurement::class)->findAll();
@@ -214,6 +217,7 @@ class ApiController extends AbstractController
      * )
      */
     #[Route('/api/measurement', methods: 'POST')]
+    #[IsGranted('ROLE_USER')]
     public function registerMeasurement(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -245,7 +249,7 @@ class ApiController extends AbstractController
         $em->persist($measurement);
         $em->flush();
 
-        return new JsonResponse(['status' => 'Measurement recorded!'], JsonResponse::HTTP_CREATED);
+        return new JsonResponse(['status' => 'Measurement recorded!'], Response::HTTP_CREATED);
     }
 
     /**
