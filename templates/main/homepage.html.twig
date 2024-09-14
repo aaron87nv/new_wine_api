@@ -80,8 +80,8 @@
         </div>
     {% else %}
         <div class="button-group">
-            <a href="login"><button>Sign In</button></a>
-            <a href="register"><button>Register</button></a>
+            <a href="/login"><button>Sign In</button></a>
+            <a href="/register"><button>Register</button></a>
         </div>
     {% endif %}
 
@@ -159,9 +159,6 @@
                     .catch(error => console.error('Error:', error));
             });
         </script>
-
-
-        </form>
 
         <div class="button-group">
             <a href="api/sensors"><button>Show Sensors</button></a>

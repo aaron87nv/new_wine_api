@@ -53,22 +53,75 @@ class ApiController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function registerSensor(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        // Decode JSON data from the request body
         $data = json_decode($request->getContent(), true);
 
-        // Check if 'name' field exists in the decoded JSON data
         $name = $data['name'] ?? null;
         if (!$name) {
             return new JsonResponse(['error' => 'Name field is required.'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Create and persist the new Sensor entity
         $sensor = new Sensor();
         $sensor->setName($name);
         $em->persist($sensor);
         $em->flush();
 
         return new JsonResponse(['status' => 'Sensor created!'], Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("/api/sensor{id}", name="api_delete_sensor", methods={"DELETE"})
+     *
+     * @SWG\Delete(
+     *     summary="Delete a sensor",
+     *     description="Delete a sensor by ID",
+     *
+     *     @SWG\Response(
+     *         response=200,
+     *         description="Sensor deleted",
+     *     @SWG\Response(
+     *          response=404,
+     *          description="Measurement not found",
+     *      ),
+     *      @SWG\Response(
+     *          response=401,
+     *          description="Unauthorized",
+     *      ),
+     *         @SWG\Schema(
+     *             type="object",
+     *
+     *             @SWG\Property(property="status", type="string")
+     *         )
+     *     ),
+     *
+     *     @SWG\Parameter(
+     *         name="id",
+     *         in="body",
+     *         required=true,
+     *         type="integer",
+     *         description="The ID of the sensor to delete"
+     *
+     *         @SWG\Schema(
+     *             type="object",
+     *
+     *             @SWG\Property(property="name", type="string")
+     *         )
+     *     )
+     * )
+     */
+    #[Route('/api/sensor/{id}', methods: ['DELETE'])]
+    #[IsGranted('ROLE_USER')]
+    public function deleteSensor(int $id, EntityManagerInterface $em): JsonResponse
+    {
+        $sensor = $em->getRepository(Sensor::class)->find($id);
+
+        if (!$sensor) {
+            return new JsonResponse(['error' => 'Sensor not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $em->remove($sensor);
+        $em->flush();
+
+        return new JsonResponse(['status' => 'Sensor deleted successfully'], Response::HTTP_OK);
     }
 
     /**
@@ -231,10 +284,9 @@ class ApiController extends AbstractController
         }
         $measurement->setSensor($sensor);
 
-        // Create a new Wine object and set its properties
         $wine = new Wine();
-        $wine->setName($data['wine_name']); // Assuming wine_name is sent in the request
-        $wine->setYear($data['year']); // Assuming wine_year is sent in the request
+        $wine->setName($data['wine_name']);
+        $wine->setYear($data['year']);
 
         $measurement->setWine($wine);
 
@@ -254,7 +306,7 @@ class ApiController extends AbstractController
      *
      * @SWG\Delete(
      *     summary="Delete a measurement",
-     *     description="Deletes an existing measurement by its ID",
+     *     description="Deletes a  measurement by ID",
      *
      *     @SWG\Response(
      *         response=200,
@@ -262,9 +314,11 @@ class ApiController extends AbstractController
      *
      *         @SWG\Schema(
      *             type="object",
+     *
      *             @SWG\Property(property="status", type="string")
      *         )
      *     ),
+     *
      *     @SWG\Response(
      *         response=404,
      *         description="Measurement not found",
@@ -273,6 +327,7 @@ class ApiController extends AbstractController
      *         response=401,
      *         description="Unauthorized",
      *     ),
+     *
      *     @SWG\Parameter(
      *         name="id",
      *         in="path",
@@ -286,27 +341,20 @@ class ApiController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function deleteMeasurement(int $id, EntityManagerInterface $em): JsonResponse
     {
-        // Find the measurement by its ID
         $measurement = $em->getRepository(Measurement::class)->find($id);
 
-        // If the measurement is not found, return a 404 error
         if (!$measurement) {
             return new JsonResponse(['error' => 'Measurement not found'], Response::HTTP_NOT_FOUND);
         }
 
-        // Get the associated wine before deleting the measurement
         $wine = $measurement->getWine();
 
-        // Remove the measurement from the database
         $em->remove($measurement);
         $em->remove($wine);
         $em->flush();
 
-
-        // Return a success response
         return new JsonResponse(['status' => 'Measurement and associated wine deleted successfully'], Response::HTTP_OK);
     }
-
 
     /**
      * @Route("/api", name="app_api", methods={"GET"})

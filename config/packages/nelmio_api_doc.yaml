@@ -18,6 +18,8 @@ nelmio_api_doc:
                 post:
                     summary: API Login
                     description: Login to obtain an authentication token.
+                    tags:
+                        - User
                     requestBody:
                         required: true
                         content:
@@ -41,13 +43,41 @@ nelmio_api_doc:
                                         type: string
                         '400':
                             description: Invalid username/password supplied
-                    tags:
-                        - User
+
             /register:
                 post:
+                    summary: API Register new user
                     description: Creates a new user
                     tags:
                         - User
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        username:
+                                            type: string
+                                        password:
+                                            type: string
+                    responses:
+                        '201':
+                            description: Successful operation
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            message:
+                                                type: string
+                                            userId:
+                                                type: integer
+                        '400':
+                            description: Invalid data
+                        '415':
+                            description: Unsupported content type
+            
             /logout:
                 post:
                     description: User Logout
@@ -73,6 +103,41 @@ nelmio_api_doc:
                             description: Sensor created successfully
                         '400':
                             description: Bad request
+                        '401':
+                            description: Unauthorized
+            /api/sensor/{id}:
+                delete:
+                    tags:
+                        - Wine Management
+                    summary: Delete a sensor
+                    parameters:
+                        - name: id
+                          in: path
+                          required: true
+                          description: The ID of the sensor to delete
+                          schema:
+                              type: integer
+                    responses:
+                        '200':
+                            description: Sensor deleted successfully
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            status:
+                                                type: string
+                                                example: Sensor deleted successfully
+                        '404':
+                            description: Sensor not found
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            error:
+                                                type: string
+                                                example: Sensor not found
                         '401':
                             description: Unauthorized
             /api/sensors:
