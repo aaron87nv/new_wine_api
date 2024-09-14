@@ -48,7 +48,7 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->redirectToRoute('/');
+            return $this->redirectToRoute('app_login');
         }
 
         // Render the form for GET requests or if the form is not valid
