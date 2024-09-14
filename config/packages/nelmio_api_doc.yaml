@@ -103,6 +103,42 @@ nelmio_api_doc:
                             description: Bad request
                         '401':
                             description: Unauthorized
+            /api/measurement/{id}:
+                delete:
+                    tags:
+                        - Wine Management
+                    summary: Delete a measurement
+                    parameters:
+                        - name: id
+                          in: path
+                          required: true
+                          description: The ID of the measurement to delete
+                          schema:
+                              type: integer
+                    responses:
+                        '200':
+                            description: Measurement deleted successfully
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            status:
+                                                type: string
+                                                example: Measurement deleted successfully
+                        '404':
+                            description: Measurement not found
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            error:
+                                                type: string
+                                                example: Measurement not found
+                        '401':
+                            description: Unauthorized
+
             /api/wines/measurements:
                 get:
                     tags:
@@ -131,7 +167,6 @@ nelmio_api_doc:
                     properties:
                         year: { type: integer}
                         sensor_id: { type: integer}
-                        wine_id: { type: integer}
                         wine_name: {type: string}
                         color: { type: string}
                         temperature: { type: number}

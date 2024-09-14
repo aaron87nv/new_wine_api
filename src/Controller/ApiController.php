@@ -227,7 +227,7 @@ class ApiController extends AbstractController
         // Find the sensor
         $sensor = $em->getRepository(Sensor::class)->find($data['sensor_id']);
         if (!$sensor) {
-            return new JsonResponse(['error' => 'Sensor not found'], JsonResponse::HTTP_NOT_FOUND);
+            return new JsonResponse(['error' => 'Sensor not found'], Response::HTTP_NOT_FOUND);
         }
         $measurement->setSensor($sensor);
 
@@ -236,21 +236,77 @@ class ApiController extends AbstractController
         $wine->setName($data['wine_name']); // Assuming wine_name is sent in the request
         $wine->setYear($data['year']); // Assuming wine_year is sent in the request
 
-        // Set the Wine object to the Measurement
         $measurement->setWine($wine);
 
-        // Set other properties of Measurement
         $measurement->setColor($data['color']);
         $measurement->setTemperature($data['temperature']);
         $measurement->setAlcoholContent($data['alcoholContent']);
         $measurement->setPh($data['ph']);
 
-        // Persist the Measurement which also persists the new Wine due to the cascade
         $em->persist($measurement);
         $em->flush();
 
         return new JsonResponse(['status' => 'Measurement recorded!'], Response::HTTP_CREATED);
     }
+
+    /**
+     * @Route("/api/measurement/{id}", name="api_delete_measurement", methods={"DELETE"})
+     *
+     * @SWG\Delete(
+     *     summary="Delete a measurement",
+     *     description="Deletes an existing measurement by its ID",
+     *
+     *     @SWG\Response(
+     *         response=200,
+     *         description="Measurement deleted",
+     *
+     *         @SWG\Schema(
+     *             type="object",
+     *             @SWG\Property(property="status", type="string")
+     *         )
+     *     ),
+     *     @SWG\Response(
+     *         response=404,
+     *         description="Measurement not found",
+     *     ),
+     *     @SWG\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         type="integer",
+     *         description="The ID of the measurement to delete"
+     *     )
+     * )
+     */
+    #[Route('/api/measurement/{id}', methods: ['DELETE'])]
+    #[IsGranted('ROLE_USER')]
+    public function deleteMeasurement(int $id, EntityManagerInterface $em): JsonResponse
+    {
+        // Find the measurement by its ID
+        $measurement = $em->getRepository(Measurement::class)->find($id);
+
+        // If the measurement is not found, return a 404 error
+        if (!$measurement) {
+            return new JsonResponse(['error' => 'Measurement not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Get the associated wine before deleting the measurement
+        $wine = $measurement->getWine();
+
+        // Remove the measurement from the database
+        $em->remove($measurement);
+        $em->remove($wine);
+        $em->flush();
+
+
+        // Return a success response
+        return new JsonResponse(['status' => 'Measurement and associated wine deleted successfully'], Response::HTTP_OK);
+    }
+
 
     /**
      * @Route("/api", name="app_api", methods={"GET"})

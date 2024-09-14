@@ -107,7 +107,7 @@
                     });
 
                     const result = await response.json();
-                    alert(response.ok ? 'Sensor created successfully!' : `Error: ${result.error || 'An error occurred'}`);
+                    alert(response.ok ? 'Sensor created successfully!' : Error: ${result.error || 'An error occurred'});
                 } catch (error) {
                     console.error('Error:', error);
                     alert('An unexpected error occurred.');
@@ -115,14 +115,15 @@
             });
         </script>
 
-        <div class="button-group">
-            <a href="api/sensors"><button>Show Sensors</button></a>
-            <a href="api/wines/measurements"><button>Show Wines</button></a>
-        </div>
-
-        <form action="api/measurement" method="post">
+        <form id="measurementForm">
             <label for="measurement_year">Year:</label>
             <input type="text" id="measurement_year" name="year" required>
+
+            <label for="measurement_sensor">Sensor ID:</label>
+            <input type="text" id="measurement_sensor" name="sensor_id" required>
+
+            <label for="measurement_wine_name">Wine Name:</label>
+            <input type="text" id="measurement_wine_name" name="wine_name" required>
 
             <label for="measurement_color">Color:</label>
             <input type="text" id="measurement_color" name="color" required>
@@ -138,6 +139,34 @@
 
             <button type="submit">New Measurement</button>
         </form>
+
+        <script>
+            document.getElementById('measurementForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                fetch('/api/measurement', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch(error => console.error('Error:', error));
+            });
+        </script>
+
+
+        </form>
+
+        <div class="button-group">
+            <a href="api/sensors"><button>Show Sensors</button></a>
+            <a href="api/wines/measurements"><button>Show Wines with Measurements</button></a>
+        </div>
     {% endif %}
 </div>
 </body>

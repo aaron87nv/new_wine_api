@@ -19,7 +19,6 @@ security:
             form_login:
                 login_path: app_login
                 check_path: app_login
-                default_target_path: /
                 enable_csrf: true
             json_login:
                 check_path: /api/login
@@ -27,14 +26,9 @@ security:
                 password_path: password
             logout:
                 path: app_logout
-                # where to redirect after logout
-                # target: app_any_route
             stateless: false
             entry_point: App\Security\CustomAuthenticationEntryPoint
 
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api/login|/api/doc, roles: PUBLIC_ACCESS }
