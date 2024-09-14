@@ -16,7 +16,7 @@
         "friendsofsymfony/rest-bundle": "^3.7",
         "jms/serializer-bundle": "^5.4",
         "lexik/jwt-authentication-bundle": "^3.1",
-        "nelmio/api-doc-bundle": "^4.29",
+        "nelmio/api-doc-bundle": "^4.30",
         "nelmio/cors-bundle": "^2.5",
         "php-cs-fixer/shim": "^3.64",
         "phpdocumentor/reflection-docblock": "^5.4",
