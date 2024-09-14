@@ -1,6 +1,6 @@
 <?php
 
-namespace Swagger;
+namespace App\Tests\Swagger;
 
 class Annotations
 {

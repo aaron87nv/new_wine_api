@@ -11,46 +11,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    /**
-     * @Route(path="/login", name="app_login", methods={"POST"})
-     *
-     * @SWG\Post(
-     *     summary="User Login",
-     *     description="Handles user login and returns the login form with errors if authentication fails.",
-     *
-     *     @SWG\Parameter(
-     *         name="username",
-     *         in="formData",
-     *         type="string",
-     *         description="The username of the user.",
-     *         required=true
-     *     ),
-     *     @SWG\Parameter(
-     *         name="password",
-     *         in="formData",
-     *         type="string",
-     *         description="The password of the user.",
-     *         required=true
-     *     ),
-     *
-     *     @SWG\Response(
-     *         response=200,
-     *         description="Returns the login page with the last username and any errors.",
-     *
-     *         @SWG\Schema(
-     *             type="object",
-     *
-     *             @SWG\Property(property="last_username", type="string"),
-     *             @SWG\Property(property="error", type="string", nullable=true)
-     *         )
-     *     ),
-     *
-     *     @SWG\Response(
-     *         response=401,
-     *         description="Unauthorized - Invalid username or password."
-     *     )
-     * )
-     */
+
     #[Route(path: '/login', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
@@ -73,23 +34,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route(path="/logout", name="app_logout", methods={"POST"})
-     *
-     * @SWG\Get(
-     *     summary="User Logout",
-     *     description="Logs the user out. This route should not be accessed directly.",
-     *
-     *     @SWG\Response(
-     *         response=302,
-     *         description="Redirects to the login page after logout."
-     *     ),
-     *     @SWG\Response(
-     *         response=500,
-     *         description="Error - Logout was not properly configured."
-     *     )
-     * )
-     */
+
     #[Route(path: '/logout', name: 'app_logout', methods: 'POST')]
     public function logout(): void
     {
