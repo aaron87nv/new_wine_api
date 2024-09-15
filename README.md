@@ -32,8 +32,12 @@ API documentation is and available at:
 https://localhost:8000/api/doc
 
 
+## E-R diagram
+![ERdiagram.png](ERdiagram.png)
 
 
+## PostgreSQL database dump
+[schema.sql](schema.sql)
 
 
 

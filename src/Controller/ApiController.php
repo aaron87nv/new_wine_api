@@ -104,7 +104,6 @@ class ApiController extends AbstractController
         $measurement = new Measurement();
         $measurement->setYear($data['year']);
 
-        // Find the sensor
         $sensor = $em->getRepository(Sensor::class)->find($data['sensor_id']);
         if (!$sensor) {
             return new JsonResponse(['error' => 'Sensor not found'], Response::HTTP_NOT_FOUND);
