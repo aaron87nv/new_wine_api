@@ -28,7 +28,7 @@ Install dependencies:
     symfony server:start
 
 ## API Documentation
-API documentation is and available at:
+API Swagger documentation is available at:
 https://localhost:8000/api/doc
 
 
@@ -39,6 +39,7 @@ https://localhost:8000/api/doc
 ## PostgreSQL database dump
 [schema.sql](schema.sql)
 
-
-
+## Other information
+There is also a example web page available at https://localhost:8000 for testing purposes.
+It includes Register, Login, and Sensor/Measurement Register and Show functionalities.
 
